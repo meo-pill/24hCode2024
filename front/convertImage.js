@@ -30,7 +30,7 @@ function findClosestColor(r, g, b, a) {
 
 // Redimensionner l'image et changer les couleurs
 sharp('input.png')
-    .resize(50, 50)
+    .resize(100, 150, { fit: "contain" })
     .toBuffer()
     .then(data => {
         Jimp.read(data)
@@ -52,11 +52,8 @@ sharp('input.png')
                         matrix[x] = [];
                     }
                     matrix[x][y] = closestColor;
-
-                    if (x === image.bitmap.width - 1 && y === image.bitmap.height - 1) {
-                        fs.writeFileSync('output.mjs', "export default " + JSON.stringify(matrix));
-                    }
                 });
+                fs.writeFileSync('output.mjs', "export default " + JSON.stringify(matrix));
             })
             .catch(err => {
                 console.error(err);
