@@ -23,6 +23,35 @@
                     document.getElementById('infoChunk').textContent = JSON.stringify(data, null, 2);
                 })
                 .catch(error => console.error('Error fetching infoChunk:', error));
+
+            fetch(`/api/getCanvaData`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('getCanvaData').textContent = JSON.stringify(data, null, 2);
+                })
+                .catch(error => console.error('Error fetching infoChunk:', error));
+
+            fetch(`/api/statChunk/${idChunk}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('statChunk').textContent = JSON.stringify(data, null, 2);
+                })
+                .catch(error => console.error('Error fetching infoChunk:', error));
+
+            fetch(`/api/getCanvaSettings`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('getCanvaSettings').textContent = JSON.stringify(data, null, 2);
+                })
+                .catch(error => console.error('Error fetching infoChunk:', error));
+
+            fetch('/api/getCanvaDataPixels')
+                .then(response => response.blob()) // Convertit la réponse en Blob
+                .then(blob => {
+                    const url = URL.createObjectURL(blob); // Crée une URL pour le Blob
+                    document.getElementById('canvasImage').src = url; // Affecte l'URL à l'attribut src de l'img
+                })
+                .catch(error => console.error('Error fetching image data:', error));
         });
     </script>
 
@@ -34,6 +63,15 @@
     <pre id="listEquipe">Chargement...</pre>
     <h2>Informations du Chunk</h2>
     <pre id="infoChunk">Chargement...</pre>
+    <h2>Données du Canva</h2>
+    <pre id="getCanvaData">Chargement...</pre>
+    <h2>Statistiques du Chunk</h2>
+    <pre id="statChunk">Chargement...</pre>
+    <h2>Paramètres du Canva</h2>
+    <pre id="getCanvaSettings">Chargement...</pre>
+    <h2>Image du Canva</h2>
+    <img id="canvasImage" alt="Canvas Image" />
+
     <!-- Vous pouvez ajouter d'autres éléments ici pour afficher plus de résultats -->
 </body>
 

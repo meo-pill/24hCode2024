@@ -1,4 +1,3 @@
-import fetch from "node-fetch"
 import io from "socket.io-client"
 import 'dotenv/config'
 
@@ -6,6 +5,7 @@ export class Api {
 	canvas_id = process.env.CANVAS_ID
 	id_equipe = process.env.TEAM_ID
 	canvas_name = process.env.CANVAS_NAME
+	id_canvas_image = "66105801f533d2a08c8fc69c"
 	api_url = "http://" + process.env.API_URL
 	token_url = "http://" + process.env.TOKEN_URL + "realms/codelemans/protocol/openid-connect/token"
 
@@ -33,6 +33,17 @@ export class Api {
 
 	async listEquipe() {
 		const response = await fetch(`${this.api_url}equipes/`, {
+			method: "GET",
+			headers: {
+				Authorization: `Bearer ${this.access_token}`,
+			},
+		})
+
+		return response.json()
+	}
+
+	async statChunk(id_chunk) {
+		const response = await fetch(`${this.api_url}canvas/${this.canvas_id}/chunks/${id_chunk}/pixels`, {
 			method: "GET",
 			headers: {
 				Authorization: `Bearer ${this.access_token}`,
@@ -83,7 +94,18 @@ export class Api {
 			},
 		})
 
-		return response.text()
+		return response.json()
+	}
+
+	async getCanvaDataPixels() {
+		const response = await fetch(`${this.api_url}pixels/${this.id_canvas_image}/data`, {
+			method: "GET",
+			headers: {
+				Authorization: `Bearer ${this.access_token}`,
+			},
+		})
+
+		return response.arrayBuffer()
 	}
 
 	async getWorkerDetails(id) {
