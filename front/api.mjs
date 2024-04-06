@@ -4,6 +4,8 @@ import 'dotenv/config'
 
 class Api {
 	canvas_id = 1
+	id_equipe = 7
+	id_worker = 1
 	url = `http://149.202.79.34:8085/api/`
 	headers = {
 		Authorization: `Bearer ${process.env.ACCESS_TOKEN}`,
@@ -14,9 +16,23 @@ class Api {
 		}
 	})
 
-	async listEquipe() { }
+	async listEquipe() {
+		const response = await fetch(`${this.url}equipes/`, {
+			method: "GET",
+			headers: this.headers,
+		})
 
-	async getEquipeDetails() { }
+		return response.json()
+	}
+
+	async getEquipeDetails() {
+		const response = await fetch(`${this.url}equipes/${this.id_equipe}`, {
+			method: "GET",
+			headers: this.headers,
+		})
+
+		return response.json()
+	}
 
 	async getCanvaData() {
 		const response = await fetch(`${this.url}canvas/${this.canvas_id}`, {
@@ -29,7 +45,14 @@ class Api {
 
 	async getCanvaSettings() { }
 
-	async getWorkerDetails() { }
+	async getWorkerDetails() {
+		const response = await fetch(`${this.url}equipes/${this.id_equipe}/workers/${this.id_worker}`, {
+			method: "GET",
+			headers: this.headers,
+		})
+
+		return response.json()
+	}
 
 	async setWorkerPosition() { }
 }
@@ -37,3 +60,6 @@ class Api {
 const api = new Api()
 
 console.log(await api.getCanvaData())
+console.log(await api.listEquipe())
+//console.log(await api.getEquipeDetails())
+//console.log(await api.getWorkerDetails())
