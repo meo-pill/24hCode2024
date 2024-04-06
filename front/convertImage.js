@@ -11,17 +11,17 @@ function findClosestColor(r, g, b, a) {
     if (a === 0) { // Si le pixel est complètement transparent, retourne null
         return null;
     }
-    
+
     let minDist = Infinity;
     let closestColor = null;
 
     for (let color in colors) {
         let [r2, g2, b2] = colors[color];
-        let dist = Math.sqrt(Math.pow(r-r2, 2) + Math.pow(g-g2, 2) + Math.pow(b-b2, 2));
+        let dist = Math.sqrt(Math.pow(r - r2, 2) + Math.pow(g - g2, 2) + Math.pow(b - b2, 2));
 
         if (dist < minDist) {
             minDist = dist;
-            closestColor = [r2, g2, b2];
+            closestColor = color;
         }
     }
 
@@ -36,7 +36,7 @@ sharp('input.png')
         Jimp.read(data)
             .then(image => {
                 let matrix = [];
-                image.scan(0, 0, image.bitmap.width, image.bitmap.height, function(x, y, idx) {
+                image.scan(0, 0, image.bitmap.width, image.bitmap.height, function (x, y, idx) {
                     let r = this.bitmap.data[idx + 0];
                     let g = this.bitmap.data[idx + 1];
                     let b = this.bitmap.data[idx + 2];
@@ -53,8 +53,8 @@ sharp('input.png')
                     }
                     matrix[x][y] = closestColor;
 
-                    if (x === image.bitmap.width-1 && y === image.bitmap.height-1) {
-                        fs.writeFileSync('output.json', JSON.stringify(matrix));
+                    if (x === image.bitmap.width - 1 && y === image.bitmap.height - 1) {
+                        fs.writeFileSync('output.mjs', "export default " + JSON.stringify(matrix));
                     }
                 });
             })
