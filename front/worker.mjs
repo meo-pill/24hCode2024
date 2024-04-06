@@ -5,19 +5,19 @@ const api = new Api()
 
 await api.init()
 
-const pos_x = 175
-const pos_y = 125
-const width = 50
-const height = 50
+const pos_x = 50
+const pos_y = 50
+const width = 100
+const height = 150
 
 const nb_worker = 50
-const timeout = 11000
-const pixel = []
-let index = 0
+const timeout = 10500
+let pixel = []
+let index = 150 * 6
 
 for (let i = 0; i < width; i++) {
     for (let j = 0; j < height; j++) {
-        if (output[i][j])
+        if (output[i] && output[i][j])
             pixel.push([i, j, output[i][j]])
     }
 }
@@ -33,7 +33,7 @@ function update() {
             x += pos_x
             y += pos_y
 
-            const chunk_id = Math.floor(y / 50) + 5 * Math.floor(x / 50)
+            const chunk_id = (Math.floor(y / 50) + 1) + 5 * Math.floor(x / 50)
             x %= 50
             y %= 50
 
