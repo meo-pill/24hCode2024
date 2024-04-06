@@ -105,7 +105,7 @@ export class Api {
 			},
 		})
 
-		return response.arrayBuffer()
+		return response.text()
 	}
 
 	async getWorkerDetails(id) {

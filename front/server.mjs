@@ -4,7 +4,6 @@ import cors from "cors";
 import 'dotenv/config';
 
 
-
 const app = express();
 const port = 3000;
 
@@ -48,12 +47,13 @@ app.get('/api/getCanvaData', async (req, res) => {
 
 app.get('/api/getCanvaDataPixels', async (req, res) => {
     try {
-        const buffer = await api.getCanvaDataPixels();
-        res.writeHead(200, {
-            'Content-Type': 'image/jpeg',
+        const buffer = Buffer.from((await api.getCanvaDataPixels()).split(",")[1], "base64");
+
+        res.set({
+            'Content-Type': 'text/plain',
             'Content-Length': buffer.byteLength
         });
-        res.end(Buffer.from(buffer));
+        res.end(buffer);
     } catch (error) {
         console.error(error);
         res.status(500).send('Internal Server Error');
