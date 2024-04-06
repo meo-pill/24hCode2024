@@ -1,4 +1,5 @@
 const sharp = require('sharp');
+const Jimp = require('jimp');
 const fs = require('fs');
 
 // Lire le fichier Colors.json
@@ -6,7 +7,11 @@ let rawdata = fs.readFileSync('../Colors.json');
 let colors = JSON.parse(rawdata);
 
 // Fonction pour trouver la couleur la plus proche
-function findClosestColor(r, g, b) {
+function findClosestColor(r, g, b, a) {
+    if (a === 0) { // Si le pixel est complètement transparent, retourne null
+        return null;
+    }
+    
     let minDist = Infinity;
     let closestColor = null;
 
@@ -24,27 +29,38 @@ function findClosestColor(r, g, b) {
 }
 
 // Redimensionner l'image et changer les couleurs
-sharp('input.png') // Changer le nom du fichier en input.png
+sharp('input.png')
     .resize(50, 50)
-    .raw()
     .toBuffer()
     .then(data => {
-        let matrix = [];
-        for (let i = 0; i < data.length; i += 3) {
-            let r = data[i];
-            let g = data[i + 1];
-            let b = data[i + 2];
+        Jimp.read(data)
+            .then(image => {
+                let matrix = [];
+                image.scan(0, 0, image.bitmap.width, image.bitmap.height, function(x, y, idx) {
+                    let r = this.bitmap.data[idx + 0];
+                    let g = this.bitmap.data[idx + 1];
+                    let b = this.bitmap.data[idx + 2];
+                    let a = this.bitmap.data[idx + 3]; // Valeur de l'opacité
 
-            let x = (i / 3) % 50;
-            let y = Math.floor((i / 3) / 50);
+                    let closestColor = findClosestColor(r, g, b, a);
+                    if (closestColor === null) {
+                        // Ignorer les pixels transparents
+                        return;
+                    }
 
-            let closestColor = findClosestColor(r, g, b);
-            if (!matrix[x]) {
-                matrix[x] = [];
-            }
-            matrix[x][y] = closestColor;
-        }
-        fs.writeFileSync('output.json', JSON.stringify(matrix));
+                    if (!matrix[x]) {
+                        matrix[x] = [];
+                    }
+                    matrix[x][y] = closestColor;
+
+                    if (x === image.bitmap.width-1 && y === image.bitmap.height-1) {
+                        fs.writeFileSync('output.json', JSON.stringify(matrix));
+                    }
+                });
+            })
+            .catch(err => {
+                console.error(err);
+            });
     })
     .catch(err => {
         console.error(err);
