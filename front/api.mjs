@@ -6,69 +6,92 @@ export class Api {
 	canvas_id = process.env.CANVAS_ID
 	id_equipe = process.env.TEAM_ID
 	canvas_name = process.env.CANVAS_NAME
-	url = process.env.URL
-	headers = {
-		Authorization: `Bearer ${process.env.ACCESS_TOKEN}`,
+	api_url = "http://" + process.env.API_URL
+	token_url = "http://" + process.env.TOKEN_URL + "realms/codelemans/protocol/openid-connect/token"
+
+	async init() {
+		this.access_token = (await this.getToken()).access_token
 	}
-	post_headers = {
-		Authorization: `Bearer ${process.env.ACCESS_TOKEN}`,
-		'Content-Type': 'application/json'
+
+	async getToken() {
+		const options = {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded'
+			},
+			body: new URLSearchParams({
+				'grant_type': 'password',
+				'client_id': `${process.env.CLIENT_ID}`,
+				'username': `${process.env.CLIENT_USERNAME}`,
+				'password': `${process.env.MDP}`,
+			})
+		};
+		const response = await fetch(this.token_url, options)
+
+		return response.json()
 	}
-	socket = io('ws://149.202.79.34:8085/api/socket', {
-		auth: {
-			token: process.env.MDP,
-		}
-	})
 
 	async listEquipe() {
-		const response = await fetch(`${this.url}equipes/`, {
+		const response = await fetch(`${this.api_url}equipes/`, {
 			method: "GET",
-			headers: this.headers,
+			headers: {
+				Authorization: `Bearer ${this.access_token}`,
+			},
 		})
 
 		return response.json()
 	}
 
 	async infoChunk(id_chunk) {
-		const response = await fetch(`${this.url}canvas/${this.canvas_id}/chunks/${id_chunk}`, {
+		const response = await fetch(`${this.api_url}canvas/${this.canvas_id}/chunks/${id_chunk}`, {
 			method: "GET",
-			headers: this.headers,
+			headers: {
+				Authorization: `Bearer ${this.access_token}`,
+			},
 		})
 
 		return response.json()
 	}
 
 	async getEquipeDetails() {
-		const response = await fetch(`${this.url}equipes/${this.id_equipe}`, {
+		const response = await fetch(`${this.api_url}equipes/${this.id_equipe}`, {
 			method: "GET",
-			headers: this.headers,
+			headers: {
+				Authorization: `Bearer ${this.access_token}`,
+			},
 		})
 
 		return response.json()
 	}
 
 	async getCanvaData() {
-		const response = await fetch(`${this.url}canvas/${this.canvas_id}`, {
+		const response = await fetch(`${this.api_url}canvas/${this.canvas_id}`, {
 			method: "GET",
-			headers: this.headers,
+			headers: {
+				Authorization: `Bearer ${this.access_token}`,
+			},
 		})
 
 		return response.json()
 	}
 
 	async getCanvaSettings() {
-		const response = await fetch(`${this.url}pixels/${this.canvas_name}/settings`, {
+		const response = await fetch(`${this.api_url}pixels/${this.canvas_name}/settings`, {
 			method: "GET",
-			headers: this.headers,
+			headers: {
+				Authorization: `Bearer ${this.access_token}`,
+			},
 		})
 
 		return response.text()
 	}
 
 	async getWorkerDetails(id) {
-		const response = await fetch(`${this.url}equipes/${this.id_equipe}/workers/${id}`, {
+		const response = await fetch(`${this.api_url}equipes/${this.id_equipe}/workers/${id}`, {
 			method: "GET",
-			headers: this.headers,
+			headers: {
+				Authorization: `Bearer ${this.access_token}`,
+			},
 		})
 
 		return response.json()
@@ -82,9 +105,12 @@ export class Api {
 			pos_x: pos_x,
 			pos_y: pos_y
 		}
-		const response = await fetch(`${this.url}equipes/${this.id_equipe}/workers/${id_worker}/pixel`, {
+		const response = await fetch(`${this.api_url}equipes/${this.id_equipe}/workers/${id_worker}/pixel`, {
 			method: "PUT",
-			headers: this.post_headers,
+			headers: {
+				Authorization: `Bearer ${this.access_token}`,
+				'Content-Type': 'application/json'
+			},
 			body: JSON.stringify(data)
 		})
 
