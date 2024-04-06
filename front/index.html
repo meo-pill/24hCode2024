@@ -6,17 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>API Demo</title>
     <script type="module">
-        import { Api } from './api.mjs';
-
         window.addEventListener('DOMContentLoaded', (event) => {
-            const api = new Api();
-
-            api.listEquipe().then(data => {
-                document.getElementById('listEquipe').textContent = JSON.stringify(data, null, 2);
-            });
-
-            // Vous pouvez ajouter d'autres appels de méthodes ici
-            // Assurez-vous d'avoir des éléments dans le HTML pour afficher les résultats
+            // Effectuer une requête fetch pour obtenir la liste des équipes depuis votre serveur
+            fetch('/api/listEquipe')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById('listEquipe').textContent = JSON.stringify(data, null, 2);
+                })
+                .catch(error => console.error('There has been a problem with your fetch operation:', error));
         });
     </script>
 </head>
@@ -25,8 +27,7 @@
     <h1>API Responses</h1>
     <h2>Liste des équipes</h2>
     <pre id="listEquipe">Chargement...</pre>
-
-    <!-- Ajoutez d'autres éléments ici pour afficher plus de résultats d'API -->
+    <!-- Vous pouvez ajouter d'autres éléments ici pour afficher plus de résultats -->
 </body>
 
 </html>
