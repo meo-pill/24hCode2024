@@ -84,15 +84,11 @@ class Api {
 			pos_y: pos_y
 		};
 
-		console.log("ttt")
-
 		const response = await fetch(`${this.url}equipes/${id_equipe}/workers/${id_worker}/pixel`, {
 			method: "PUT",
 			headers: this.post_headers,
 			body: JSON.stringify(data)
 		});
-
-		console.log("aaa");
 
 		return response.json()
 	}
