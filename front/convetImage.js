@@ -28,7 +28,7 @@ function findClosestColor(r, g, b) {
 
 // Redimensionner l'image et changer les couleurs
 sharp('input.jpg')
-    .resize(50, 50)
+    .resize(150, 150)
     .toBuffer()
     .then(data => {
         Jimp.read(data)
