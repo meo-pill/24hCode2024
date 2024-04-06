@@ -1,10 +1,11 @@
 // Importer la bibliothèque
 const io = require('socket.io-client');
+require('dotenv').config();
 
 // Créer une nouvelle connexion WebSocket
 const socket = io('ws://149.202.79.34:8085/api/socket', {
     auth: {
-        token: '%K7%%GG,2U5g-k9'
+        token: process.env.MDP
     }
 });
 

@@ -1,11 +1,13 @@
 import fetch from "node-fetch";
+import io from "socket.io-client";
+import dotenv from "dotenv";
 
 class Api {
 	url = `http://149.202.79.34:8085/api/canvas/${canvasId}`;
 
 	socket = io('ws://149.202.79.34:8085/api/socket', {
 		auth: {
-			token: '%K7%%GG,2U5g-k9'
+			token: process.env.MDP,
 		}
 	});
 
