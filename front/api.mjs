@@ -3,9 +3,8 @@ import io from "socket.io-client"
 import 'dotenv/config'
 
 class Api {
-	canvas_id = 1
-	id_equipe = 8
-	id_worker = 1
+	canvas_id = process.env.CANVAS_ID
+	id_equipe = process.env.TEAM_ID
 	nom_canvas = "canvas_200x300"
 	url = `http://149.202.79.34:8085/api/`
 	headers = {
@@ -53,8 +52,8 @@ class Api {
 		return response.text()
 	}
 
-	async getWorkerDetails() {
-		const response = await fetch(`${this.url}equipes/${this.id_equipe}/workers/${this.id_worker}`, {
+	async getWorkerDetails(id) {
+		const response = await fetch(`${this.url}equipes/${this.id_equipe}/workers/${id}`, {
 			method: "GET",
 			headers: this.headers,
 		})
@@ -81,11 +80,3 @@ class Api {
 }
 
 const api = new Api()
-
-//console.log(await api.getCanvaData())
-//console.log(await api.listEquipe())
-//console.log(await api.getEquipeDetails())
-//console.log(await api.getWorkerDetails())
-//console.log(await api.getCanvaSettings())
-console.log(await api.setWorkerPosition(8, 390, "canvas_200x300", 5, "dark_green", 0, 4))
-console.log("cc")
