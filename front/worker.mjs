@@ -1,20 +1,22 @@
 import { Api } from "./api.mjs"
-import colors from "./colors.mjs"
 import output from "./output.mjs"
 
 const api = new Api()
 
 await api.init()
 
-const chunk_id = 5
+const pos_x = 175
+const pos_y = 125
+const width = 50
+const height = 50
+
 const nb_worker = 50
 const timeout = 11000
-const size = 50
-const line = 2
 const pixel = []
+let index = 0
 
-for (let i = 0; i < size; i++) {
-    for (let j = 0; j < size; j++) {
+for (let i = 0; i < width; i++) {
+    for (let j = 0; j < height; j++) {
         if (output[i][j])
             pixel.push([i, j, output[i][j]])
     }
@@ -23,10 +25,20 @@ for (let i = 0; i < size; i++) {
 function update() {
     for (let i = 0; i < nb_worker; i++) {
         setTimeout(() => {
-            const [x, y, color] = pixel[Math.round(Math.random() * (pixel.length - 1))]
+            let [x, y, color] = pixel[index++]
 
-            api.setWorkerPosition(351 + i, chunk_id, color, x, y - 50 * -(line - 4))
-            console.log(351 + i, chunk_id, color, x, y - 50 * -(line - 4))
+            if (index == pixel.length)
+                index = 0
+
+            x += pos_x
+            y += pos_y
+
+            const chunk_id = Math.floor(y / 50) + 5 * Math.floor(x / 50)
+            x %= 50
+            y %= 50
+
+            api.setWorkerPosition(351 + i, chunk_id, color, x, y)
+            console.log(351 + i, chunk_id, color, x, y)
         }, (timeout / nb_worker) * i)
     }
 }
