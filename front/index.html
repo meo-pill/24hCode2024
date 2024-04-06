@@ -1,13 +1,32 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 
 <head>
-    <title>Front</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Demo</title>
+    <script type="module">
+        import { Api } from './api.mjs';
+
+        window.addEventListener('DOMContentLoaded', (event) => {
+            const api = new Api();
+
+            api.listEquipe().then(data => {
+                document.getElementById('listEquipe').textContent = JSON.stringify(data, null, 2);
+            });
+
+            // Vous pouvez ajouter d'autres appels de méthodes ici
+            // Assurez-vous d'avoir des éléments dans le HTML pour afficher les résultats
+        });
+    </script>
 </head>
 
 <body>
-    <h1>Front</h1>
-    <p>Front content</p>
+    <h1>API Responses</h1>
+    <h2>Liste des équipes</h2>
+    <pre id="listEquipe">Chargement...</pre>
+
+    <!-- Ajoutez d'autres éléments ici pour afficher plus de résultats d'API -->
 </body>
 
 </html>
