@@ -105,6 +105,7 @@ Thumbs.db
 *.der
 *.key
 *.pem
+*.env
 
 # --------------------------------------------------------
 # BEGIN Explictly Allowed Files (i.e. do NOT ignore these)
