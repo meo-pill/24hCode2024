@@ -25,6 +25,17 @@ app.get('/api/listEquipe', async (req, res) => {
     }
 });
 
+// Appel à infoChunk avec un paramètre
+app.get('/api/infoChunk/:id_chunk', async (req, res) => {
+    try {
+        const data = await api.infoChunk(req.params.id_chunk);
+        res.json(data);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
 app.listen(port, () => {
     console.log(`Server listening at http://localhost:${port}`);
 });

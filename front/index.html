@@ -7,26 +7,33 @@
     <title>API Demo</title>
     <script type="module">
         window.addEventListener('DOMContentLoaded', (event) => {
-            // Effectuer une requête fetch pour obtenir la liste des équipes depuis votre serveur
+            // Exemple d'appel à listEquipe
             fetch('/api/listEquipe')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(data => {
                     document.getElementById('listEquipe').textContent = JSON.stringify(data, null, 2);
                 })
-                .catch(error => console.error('There has been a problem with your fetch operation:', error));
+                .catch(error => console.error('Error fetching listEquipe:', error));
+
+            // Appel à infoChunk
+            const idChunk = 5; // Remplacez par l'ID de chunk réel que vous souhaitez interroger
+            fetch(`/api/infoChunk/${idChunk}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('infoChunk').textContent = JSON.stringify(data, null, 2);
+                })
+                .catch(error => console.error('Error fetching infoChunk:', error));
         });
     </script>
+
 </head>
 
 <body>
     <h1>API Responses</h1>
     <h2>Liste des équipes</h2>
     <pre id="listEquipe">Chargement...</pre>
+    <h2>Informations du Chunk</h2>
+    <pre id="infoChunk">Chargement...</pre>
     <!-- Vous pouvez ajouter d'autres éléments ici pour afficher plus de résultats -->
 </body>
 
