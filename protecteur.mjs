@@ -1,17 +1,19 @@
 import { Api } from "./api.mjs"
 import output from "./output.mjs"
-let ws_credentials = await (await fetch("/api/wsCredentials")).json()
-let socket = io(ws_credentials.url, {
+import colors from "./colors.mjs"
+import io from "socket.io-client"
+
+
+const api = new Api()
+
+await api.init()
+
+const socket_url = "ws://" + process.env.API_URL + "socket"
+let socket = io(socket_url, {
     auth: {
-        token: ws_credentials.token,
+        token: api.access_token,
     }
 })
-
-const fs = require('fs');
-
-// Lire le fichier Colors.json
-let rawdata = fs.readFileSync('./Colors.json');
-let colors = JSON.parse(rawdata);
 
 // Fonction pour trouver la couleur la plus proche
 function findColor(r, g, b) {
@@ -25,22 +27,19 @@ function findColor(r, g, b) {
 
 socket.on('disconnect', async () => {
     console.log('WebSocket déconnecter.');
-    ws_credentials = await (await fetch("/api/wsCredentials")).json()
-    socket = io(ws_credentials.url, {
+    await api.init()
+
+    socket = io(socket_url, {
         auth: {
-            token: ws_credentials.token,
+            token: api.access_token,
         }
     })
 })
 
-const api = new Api()
-
-await api.init()
-
-const pos_x = 50
-const pos_y = 50
-const width = 100
-const height = 150
+const pos_x = 0
+const pos_y = 200
+const width = 50
+const height = 50
 
 const nb_worker = 50
 const timeout = 10500
@@ -54,26 +53,43 @@ for (let i = 0; i < width; i++) {
     }
 }
 
+async function updateWorkerList() {
+    let workers = new Array(50)
+    let currentTime = Date.now();
+    const data = await Promise.all(Array.from(workers.keys()).map(i => api.getWorkerDetails(i + 1)))
+
+    for (const index in data) {
+        let dateDernierPixelPose = new Date(data[index].dateDernierPixelPose).getTime(); // Convertir en millisecondes
+        let timeElapsed = currentTime - dateDernierPixelPose; // Temps écoulé depuis dateDernierPixelPose
+        let timeRemaining = Math.max(0, 10000 - timeElapsed); // Temps restant avant que 10 secondes ne se soient écoulées, ou 0 si ce temps est déjà écoulé
+
+        workers[index] = timeRemaining;
+    }
+
+    return workers
+}
+
 socket.on('pixelUpdated', data => {
-    if (data.x < pos_x || data.x >= pos_x + width || data.y < pos_y || data.y >= pos_y + height) { // Si le pixel n'est pas dans la zone de protection
+    if (data.x >= pos_x && data.x < pos_x + width && data.y >= pos_y && data.y < pos_y + height) { // Si le pixel n'est pas dans la zone de protection
         if (output[data.x - pos_x][data.y - pos_y]) { // Si le pixel n'est pas dans une zone vide
             if (output[data.x - pos_x][data.y - pos_y] != findColor(data.rgb[0], data.rgb[1], data.rgb[2])) { // Si la couleur du pixel est différente de la couleur attendue
                 (async () => { // Trouver un worker disponible
-                    let worker = await (await fetch("/api/getWorkerTiming")).json()
+                    let worker = await updateWorkerList()
                     let bestworker = worker.indexOf(0)
                     while (bestworker == -1) { // Si aucun worker n'est disponible
                         await new Promise(resolve => setTimeout(resolve, 1000))
-                        worker = await (await fetch("/api/getWorkerTiming")).json()
+                        worker = await updateWorkerList()
                         bestworker = worker.indexOf(0)
                     }
                     // Envoyer le pixel au worker
-                    api.setWorkerPosition(bestworker + 351, chunk_id, color, x, y)
+
+                    console.log(bestworker + 351, data.x, data.y)
+                    //api.setWorkerPosition(bestworker + 351, chunk_id, color, x, y)
                 })();
             }
         }
     }
 });
-
 
 async function update() {
     let [x, y, color] = pixel[index++]
@@ -88,16 +104,16 @@ async function update() {
     x %= 50
     y %= 50
     // Trouver un worker disponible
-    worker = await (await fetch("/api/getWorkerTiming")).json()
+    let worker = await updateWorkerList()
     let bestworker = worker.indexOf(0)
     while (bestworker == -1) { // Si aucun worker n'est disponible
         await new Promise(resolve => setTimeout(resolve, 1000))
-        worker = await (await fetch("/api/getWorkerTiming")).json()
+        worker = await updateWorkerList()
         bestworker = worker.indexOf(0)
     }
     // Envoyer le pixel au worker
     api.setWorkerPosition(bestworker + 351, chunk_id, color, x, y)
-    console.log(351 + i, chunk_id, color, x, y)
+    console.log(351 + bestworker, chunk_id, color, x, y)
 }
 
 setInterval(update, timeout)
