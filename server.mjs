@@ -4,7 +4,6 @@ import cors from "cors";
 import 'dotenv/config';
 import fs from "fs";
 
-
 const app = express();
 const port = 3000;
 
@@ -12,7 +11,30 @@ app.use(cors());
 app.use(express.static('front')); // Serve files from the current directory
 
 const api = new Api();
+
 await api.init();
+
+let workers = new Array(50)
+
+async function updateWorkerList() {
+    let currentTime = Date.now();
+    const data = await Promise.all(Array.from(workers.keys()).map(i => api.getWorkerDetails(i + 1)))
+
+    for (const index in data) {
+        let dateDernierPixelPose = new Date(data[index].dateDernierPixelPose).getTime(); // Convertir en millisecondes
+        let timeElapsed = currentTime - dateDernierPixelPose; // Temps écoulé depuis dateDernierPixelPose
+        let timeRemaining = Math.max(0, 10000 - timeElapsed); // Temps restant avant que 10 secondes ne se soient écoulées, ou 0 si ce temps est déjà écoulé
+
+        workers[index] = timeRemaining;
+    }
+}
+
+setInterval(updateWorkerList, 2000)
+await updateWorkerList()
+
+app.get("/api/getWorkerTiming", (req, res) => {
+    res.send(workers)
+})
 
 app.get("/socket-io.js", (req, res) => {
     res.set({
@@ -21,7 +43,8 @@ app.get("/socket-io.js", (req, res) => {
     res.send(fs.readFileSync("./node_modules/socket.io-client/dist/socket.io.min.js"))
 });
 
-app.get("/api/wsCredentials", async (req, res) => { await api.init();
+app.get("/api/wsCredentials", async (req, res) => {
+    await api.init();
     res.send({
         url: "ws://" + process.env.API_URL + "socket",
         token: api.access_token
@@ -99,20 +122,3 @@ app.get('/api/statChunk/:id_chunk', async (req, res) => {
 app.listen(port, () => {
     console.log(`Server listening at http://localhost:${port}`);
 });
-
-
-setInterval(() => {
-    let workers = []
-    let currentTime = Date.now();
-    
-    for (let i = 1; i <= 50; i++) {
-        api.getWorkerDetails(i).then(data => {
-            let dateDernierPixelPose = new Date(data.dateDernierPixelPose).getTime(); // Convertir en millisecondes
-            let timeElapsed = currentTime - dateDernierPixelPose; // Temps écoulé depuis dateDernierPixelPose
-            let timeRemaining = Math.max(0, 10000 - timeElapsed); // Temps restant avant que 10 secondes ne se soient écoulées, ou 0 si ce temps est déjà écoulé
-            
-            workers.push(timeRemaining);
-        })
-    }
-    console.log(workers)
-}, 1000);
