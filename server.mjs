@@ -21,7 +21,7 @@ app.get("/socket-io.js", (req, res) => {
     res.send(fs.readFileSync("./node_modules/socket.io-client/dist/socket.io.min.js"))
 });
 
-app.get("/api/wsCredentials", (req, res) => {
+app.get("/api/wsCredentials", async (req, res) => { await api.init();
     res.send({
         url: "ws://" + process.env.API_URL + "socket",
         token: api.access_token
