@@ -20,14 +20,15 @@ async function putPixel(x, y, workerid, color) {
     });
 }
 
-canvas.addEventListener('click', function(event) {
+canvas.addEventListener('click', async function(event) {
     var rect = canvas.getBoundingClientRect();
     var scaleX = canvas.width / rect.width;    // la relation scaleX entre les dimensions CSS et les dimensions réelles
     var scaleY = canvas.height / rect.height;  // la relation scaleY entre les dimensions CSS et les dimensions réelles
     
     var x = Math.round((event.clientX - rect.left) * scaleX);   // ajuster les coordonnées du clic en fonction de l'échelle
     var y = Math.round((event.clientY - rect.top) * scaleY);    // ajuster les coordonnées du clic en fonction de l'échelle
-    putPixel(x, y, 351, 'black');
+    worker= await (await fetch("/api/getWorkerTiming")).json()
+    putPixel(x, y, worker.indexof(0) + 1 , 'black');
 });
 
 socket.on('connect', () => {
