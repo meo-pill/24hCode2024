@@ -37,9 +37,9 @@ socket.on('disconnect', async () => {
 })
 
 const pos_x = 0
-const pos_y = 200
-const width = 50
-const height = 50
+const pos_y = 50
+const width = 100
+const height = 150
 
 const nb_worker = 50
 const timeout = 10500
@@ -71,8 +71,8 @@ async function updateWorkerList() {
 
 socket.on('pixelUpdated', data => {
     if (data.x >= pos_x && data.x < pos_x + width && data.y >= pos_y && data.y < pos_y + height) { // Si le pixel n'est pas dans la zone de protection
-        if (output[data.x - pos_x][data.y - pos_y]) { // Si le pixel n'est pas dans une zone vide
-            if (output[data.x - pos_x][data.y - pos_y] != findColor(data.rgb[0], data.rgb[1], data.rgb[2])) { // Si la couleur du pixel est différente de la couleur attendue
+        if (pixel[data.x - pos_x][data.y - pos_y]) { // Si le pixel n'est pas dans une zone vide
+            if (pixel[data.x - pos_x][data.y - pos_y] != findColor(data.rgb[0], data.rgb[1], data.rgb[2])) { // Si la couleur du pixel est différente de la couleur attendue
                 (async () => { // Trouver un worker disponible
                     let worker = await updateWorkerList()
                     let bestworker = worker.indexOf(0)
@@ -84,37 +84,13 @@ socket.on('pixelUpdated', data => {
                     // Envoyer le pixel au worker
 
                     console.log(bestworker + 351, data.x, data.y)
-                    //api.setWorkerPosition(bestworker + 351, chunk_id, color, x, y)
+                    const chunk_id = (Math.floor(y / 50) + 1) + 5 * Math.floor(x / 50)
+                    x = data.x % 50
+                    y = data.y % 50
+                    console.log(351 + bestworker, chunk_id, pixel[data.x - pos_x][data.y - pos_y], x, y)
+                    api.setWorkerPosition(bestworker + 351, chunk_id, pixel[data.x - pos_x][data.y - pos_y], x, y)
                 })();
             }
         }
     }
 });
-
-async function update() {
-    let [x, y, color] = pixel[index++]
-
-    if (index == pixel.length)
-        index = 0
-
-    x += pos_x
-    y += pos_y
-
-    const chunk_id = (Math.floor(y / 50) + 1) + 5 * Math.floor(x / 50)
-    x %= 50
-    y %= 50
-    // Trouver un worker disponible
-    let worker = await updateWorkerList()
-    let bestworker = worker.indexOf(0)
-    while (bestworker == -1) { // Si aucun worker n'est disponible
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        worker = await updateWorkerList()
-        bestworker = worker.indexOf(0)
-    }
-    // Envoyer le pixel au worker
-    api.setWorkerPosition(bestworker + 351, chunk_id, color, x, y)
-    console.log(351 + bestworker, chunk_id, color, x, y)
-}
-
-setInterval(update, timeout)
-update()

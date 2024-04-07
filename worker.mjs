@@ -5,7 +5,7 @@ const api = new Api()
 
 await api.init()
 
-const pos_x = 50
+const pos_x = 0
 const pos_y = 50
 const width = 100
 const height = 150
