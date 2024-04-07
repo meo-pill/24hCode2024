@@ -108,7 +108,8 @@ export class Api {
 	}
 
 	async getWorkerDetails(id) {
-		const response = await fetch(`${this.api_url}equipes/${this.id_equipe}/workers/${id}`, {
+		const id_worker = ((this.id_equipe- 1) * 50) + id;
+		const response = await fetch(`${this.api_url}equipes/${this.id_equipe}/workers/${id_worker}`, {
 			method: "GET",
 			headers: {
 				Authorization: `Bearer ${this.access_token}`,

@@ -99,3 +99,20 @@ app.get('/api/statChunk/:id_chunk', async (req, res) => {
 app.listen(port, () => {
     console.log(`Server listening at http://localhost:${port}`);
 });
+
+
+setInterval(() => {
+    let workers = []
+    let currentTime = Date.now();
+    
+    for (let i = 1; i <= 50; i++) {
+        api.getWorkerDetails(i).then(data => {
+            let dateDernierPixelPose = new Date(data.dateDernierPixelPose).getTime(); // Convertir en millisecondes
+            let timeElapsed = currentTime - dateDernierPixelPose; // Temps écoulé depuis dateDernierPixelPose
+            let timeRemaining = Math.max(0, 10000 - timeElapsed); // Temps restant avant que 10 secondes ne se soient écoulées, ou 0 si ce temps est déjà écoulé
+            
+            workers.push(timeRemaining);
+        })
+    }
+    console.log(workers)
+}, 1000);
