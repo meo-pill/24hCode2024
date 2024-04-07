@@ -67,17 +67,18 @@ for (let i = 0; i < width; i++) {
 }
 
 socket.on('pixelUpdated', data => {
-    if (data.x < pos_x || data.x >= pos_x + width || data.y < pos_y || data.y >= pos_y + height) {
-        if (output[data.x - pos_x][data.y - pos_y] != []) {
-            if (output[data.x - pos_x][data.y - pos_y] != findClosestColor(data.rgb[0], data.rgb[1], data.rgb[2], 255)) {
-                (async () => {
+    if (data.x < pos_x || data.x >= pos_x + width || data.y < pos_y || data.y >= pos_y + height) { // Si le pixel n'est pas dans la zone de protection
+        if (output[data.x - pos_x][data.y - pos_y] != []) { // Si le pixel n'est pas dans une zone vide
+            if (output[data.x - pos_x][data.y - pos_y] != findClosestColor(data.rgb[0], data.rgb[1], data.rgb[2], 255)) { // Si la couleur du pixel est différente de la couleur attendue
+                (async () => { // Trouver un worker disponible
                     let worker = await (await fetch("/api/getWorkerTiming")).json()
                     let bestworker = worker.indexOf(0)
-                    while (bestworker == -1) {
+                    while (bestworker == -1) { // Si aucun worker n'est disponible
                         await new Promise(resolve => setTimeout(resolve, 1000))
                         worker = await (await fetch("/api/getWorkerTiming")).json()
                         bestworker = worker.indexOf(0)
                     }
+                    // Envoyer le pixel au worker
                     api.setWorkerPosition(bestworker + 1, chunk_id, color, x, y)
                 })();
             }
@@ -88,7 +89,7 @@ socket.on('pixelUpdated', data => {
 
 async function update() {
     let [x, y, color] = pixel[index++]
-
+    
     if (index == pixel.length)
         index = 0
 
@@ -98,13 +99,15 @@ async function update() {
     const chunk_id = (Math.floor(y / 50) + 1) + 5 * Math.floor(x / 50)
     x %= 50
     y %= 50
+    // Trouver un worker disponible
     worker = await (await fetch("/api/getWorkerTiming")).json()
     let bestworker = worker.indexOf(0)
-    while (bestworker == -1) {
+    while (bestworker == -1) { // Si aucun worker n'est disponible
         await new Promise(resolve => setTimeout(resolve, 1000))
         worker = await (await fetch("/api/getWorkerTiming")).json()
         bestworker = worker.indexOf(0)
     }
+    // Envoyer le pixel au worker
     api.setWorkerPosition(bestworker + 1, chunk_id, color, x, y)
     console.log(351 + i, chunk_id, color, x, y)
 }
