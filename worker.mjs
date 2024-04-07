@@ -5,15 +5,15 @@ const api = new Api()
 
 await api.init()
 
-const pos_x = 50
-const pos_y = 50
-const width = 100
-const height = 150
+const pos_x = 150
+const pos_y = 150
+const width = 50
+const height = 50
 
 const nb_worker = 50
 const timeout = 10500
 let pixel = []
-let index = 150 * 6
+let index = 0
 
 for (let i = 0; i < width; i++) {
     for (let j = 0; j < height; j++) {

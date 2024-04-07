@@ -58,3 +58,7 @@ canvas {
     border-radius: .5em;
     border: solid 1px darkgrey;
 }
+
+.color.selected {
+    border-color: red;
+}

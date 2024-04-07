@@ -9,7 +9,8 @@ let socket = io(ws_credentials.url, {
         token: ws_credentials.token,
     }
 })
-let selectedColor = "black"
+let selected_color = "black"
+let last_element_selected
 
 context.imageSmoothingEnabled = false
 
@@ -32,7 +33,7 @@ canvas.addEventListener('click', async function (event) {
     const y = Math.round((event.clientY - rect.top) * scaleY);    // ajuster les coordonnées du clic en fonction de l'échelle
     const worker = await (await fetch("/api/getWorkerTiming")).json()
 
-    putPixel(x, y, worker.indexOf(0) + 351, selectedColor);
+    putPixel(x, y, worker.indexOf(0) + 351, selected_color);
 });
 
 socket.on('connect', () => {
@@ -63,6 +64,11 @@ for (const key in colors) {
     const color = colors[key]
     const color_element = document.createElement("a")
 
+    if (selected_color == key) {
+        last_element_selected = color_element
+        last_element_selected.classList.add("selected")
+    }
+
     color_element.href = "#"
     color_element.title = key.split("_").map(string => {
         string = string.split("")
@@ -71,9 +77,14 @@ for (const key in colors) {
         return string.join("")
     }).join(" ")
     color_element.style.backgroundColor = `rgb(${color[0]}, ${color[1]}, ${color[2]})`
-    color_element.className = "color"
+    color_element.classList.add("color")
 
-    color_element.addEventListener("click", () => selectedColor = key)
+    color_element.addEventListener("click", () => {
+        selected_color = key
+        last_element_selected.classList.remove("selected")
+        last_element_selected = color_element
+        color_element.classList.add("selected")
+    })
 
     colors_element.append(color_element)
 }

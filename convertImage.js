@@ -29,8 +29,8 @@ function findClosestColor(r, g, b, a) {
 }
 
 // Redimensionner l'image et changer les couleurs
-sharp('input.png')
-    .resize(100, 150, { fit: "contain" })
+sharp('inputa.jpg')
+    .resize(50, 50, { fit: "contain" })
     .toBuffer()
     .then(data => {
         Jimp.read(data)
