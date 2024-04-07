@@ -3,7 +3,7 @@ const Jimp = require('jimp');
 const fs = require('fs');
 
 // Lire le fichier Colors.json
-let rawdata = fs.readFileSync('../Colors.json');
+let rawdata = fs.readFileSync('./Colors.json');
 let colors = JSON.parse(rawdata);
 
 // Fonction pour trouver la couleur la plus proche

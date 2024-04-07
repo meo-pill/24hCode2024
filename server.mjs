@@ -2,16 +2,31 @@ import { Api } from './api.mjs'; // Vérifiez le chemin pour être sûr qu'il es
 import express from "express";
 import cors from "cors";
 import 'dotenv/config';
+import fs from "fs";
 
 
 const app = express();
 const port = 3000;
 
 app.use(cors());
-app.use(express.static('.')); // Serve files from the current directory
+app.use(express.static('front')); // Serve files from the current directory
 
 const api = new Api();
 await api.init();
+
+app.get("/socket-io.js", (req, res) => {
+    res.set({
+        'Content-Type': 'application/javascript'
+    });
+    res.send(fs.readFileSync("./node_modules/socket.io-client/dist/socket.io.min.js"))
+});
+
+app.get("/api/wsCredentials", (req, res) => {
+    res.send({
+        url: "ws://" + process.env.API_URL + "socket",
+        token: api.access_token
+    })
+})
 
 // Exemple d'endpoint qui utilise `Api` pour lister les équipes
 app.get('/api/listEquipe', async (req, res) => {
