@@ -10,10 +10,10 @@ let socket = io(ws_credentials.url, {
 
 context.imageSmoothingEnabled = false
 
-async function putPixel(x, y, color) {
-    socket.emit(updatePixel, {
+async function putPixel(x, y, workerid, color) {
+    socket.emit("updatePixel", {
         "canvasId": 1,
-        "workerId": workid,
+        "workerId": workerid,
         "x": x,
         "y": y,
         "color": color
