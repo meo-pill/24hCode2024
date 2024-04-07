@@ -14,25 +14,13 @@ let rawdata = fs.readFileSync('./Colors.json');
 let colors = JSON.parse(rawdata);
 
 // Fonction pour trouver la couleur la plus proche
-function findClosestColor(r, g, b, a) {
-    if (a === 0) { // Si le pixel est complètement transparent, retourne null
-        return null;
-    }
-
-    let minDist = Infinity;
-    let closestColor = null;
-
+function findColor(r, g, b) {
     for (let color in colors) {
         let [r2, g2, b2] = colors[color];
-        let dist = Math.sqrt(Math.pow(r - r2, 2) + Math.pow(g - g2, 2) + Math.pow(b - b2, 2));
-
-        if (dist < minDist) {
-            minDist = dist;
-            closestColor = color;
+        if (r == r2 && g == g2 && b == b2) {
+            return color;
         }
     }
-
-    return closestColor;
 }
 
 socket.on('disconnect', async () => {
@@ -68,8 +56,8 @@ for (let i = 0; i < width; i++) {
 
 socket.on('pixelUpdated', data => {
     if (data.x < pos_x || data.x >= pos_x + width || data.y < pos_y || data.y >= pos_y + height) { // Si le pixel n'est pas dans la zone de protection
-        if (output[data.x - pos_x][data.y - pos_y] != []) { // Si le pixel n'est pas dans une zone vide
-            if (output[data.x - pos_x][data.y - pos_y] != findClosestColor(data.rgb[0], data.rgb[1], data.rgb[2], 255)) { // Si la couleur du pixel est différente de la couleur attendue
+        if (output[data.x - pos_x][data.y - pos_y]) { // Si le pixel n'est pas dans une zone vide
+            if (output[data.x - pos_x][data.y - pos_y] != findColor(data.rgb[0], data.rgb[1], data.rgb[2])) { // Si la couleur du pixel est différente de la couleur attendue
                 (async () => { // Trouver un worker disponible
                     let worker = await (await fetch("/api/getWorkerTiming")).json()
                     let bestworker = worker.indexOf(0)
@@ -79,7 +67,7 @@ socket.on('pixelUpdated', data => {
                         bestworker = worker.indexOf(0)
                     }
                     // Envoyer le pixel au worker
-                    api.setWorkerPosition(bestworker + 1, chunk_id, color, x, y)
+                    api.setWorkerPosition(bestworker + 351, chunk_id, color, x, y)
                 })();
             }
         }
@@ -89,7 +77,7 @@ socket.on('pixelUpdated', data => {
 
 async function update() {
     let [x, y, color] = pixel[index++]
-    
+
     if (index == pixel.length)
         index = 0
 
@@ -108,7 +96,7 @@ async function update() {
         bestworker = worker.indexOf(0)
     }
     // Envoyer le pixel au worker
-    api.setWorkerPosition(bestworker + 1, chunk_id, color, x, y)
+    api.setWorkerPosition(bestworker + 351, chunk_id, color, x, y)
     console.log(351 + i, chunk_id, color, x, y)
 }
 
