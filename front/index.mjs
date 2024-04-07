@@ -1,6 +1,6 @@
 const canvas = document.querySelector("canvas")
 const context = canvas.getContext("2d")
-const image = new Image(300, 250)
+const image = new Image(350, 250)
 const ws_credentials = await (await fetch("/api/wsCredentials")).json()
 const socket = io(ws_credentials.url, {
     auth: {
