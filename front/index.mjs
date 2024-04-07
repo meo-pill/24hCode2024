@@ -1,3 +1,5 @@
+import colors from "./colors.mjs"
+
 const canvas = document.querySelector("canvas")
 const context = canvas.getContext("2d")
 const image = new Image(350, 250)
@@ -7,6 +9,7 @@ let socket = io(ws_credentials.url, {
         token: ws_credentials.token,
     }
 })
+let selectedColor = "black"
 
 context.imageSmoothingEnabled = false
 
@@ -20,15 +23,16 @@ async function putPixel(x, y, workerid, color) {
     });
 }
 
-canvas.addEventListener('click', async function(event) {
-    var rect = canvas.getBoundingClientRect();
-    var scaleX = canvas.width / rect.width;    // la relation scaleX entre les dimensions CSS et les dimensions réelles
-    var scaleY = canvas.height / rect.height;  // la relation scaleY entre les dimensions CSS et les dimensions réelles
-    
-    var x = Math.round((event.clientX - rect.left) * scaleX);   // ajuster les coordonnées du clic en fonction de l'échelle
-    var y = Math.round((event.clientY - rect.top) * scaleY);    // ajuster les coordonnées du clic en fonction de l'échelle
-    worker= await (await fetch("/api/getWorkerTiming")).json()
-    putPixel(x, y, worker.indexof(0) + 1 , 'black');
+canvas.addEventListener('click', async function (event) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;    // la relation scaleX entre les dimensions CSS et les dimensions réelles
+    const scaleY = canvas.height / rect.height;  // la relation scaleY entre les dimensions CSS et les dimensions réelles
+
+    const x = Math.round((event.clientX - rect.left) * scaleX);   // ajuster les coordonnées du clic en fonction de l'échelle
+    const y = Math.round((event.clientY - rect.top) * scaleY);    // ajuster les coordonnées du clic en fonction de l'échelle
+    const worker = await (await fetch("/api/getWorkerTiming")).json()
+
+    putPixel(x, y, worker.indexOf(0) + 351, selectedColor);
 });
 
 socket.on('connect', () => {
@@ -52,3 +56,24 @@ image.src = "/api/getCanvaDataPixels"
 image.addEventListener("load", () => {
     context.drawImage(image, 0, 0);
 })
+
+const colors_element = document.querySelector("#colors div")
+
+for (const key in colors) {
+    const color = colors[key]
+    const color_element = document.createElement("a")
+
+    color_element.href = "#"
+    color_element.title = key.split("_").map(string => {
+        string = string.split("")
+        string[0] = string[0].toUpperCase()
+
+        return string.join("")
+    }).join(" ")
+    color_element.style.backgroundColor = `rgb(${color[0]}, ${color[1]}, ${color[2]})`
+    color_element.className = "color"
+
+    color_element.addEventListener("click", () => selectedColor = key)
+
+    colors_element.append(color_element)
+}
