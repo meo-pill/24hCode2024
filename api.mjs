@@ -136,6 +136,9 @@ export class Api {
 			body: JSON.stringify(data)
 		})
 
+		if (response.status != 200)
+			throw "Status error"
+
 		return response.json()
 	}
 }
